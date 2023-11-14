@@ -1,0 +1,149 @@
+#include <iostream>
+#include <list>
+#include <string>
+
+class Employee {
+private:
+    std::string name;
+    int employeeNumber;
+    std::string hireDate;
+
+public:
+    // Constructors
+    Employee() : name(""), employeeNumber(0), hireDate("") {}
+    Employee(const std::string& n, int num, const std::string& date) : name(n), employeeNumber(num), hireDate(date) {}
+
+    // Virtual destructor
+    virtual ~Employee() {}
+
+    // Accessor functions
+    std::string getName() const {
+        return name;
+    }
+
+    int getEmployeeNumber() const {
+        return employeeNumber;
+    }
+
+    std::string getHireDate() const {
+        return hireDate;
+    }
+
+    // Mutator functions
+    void setName(const std::string& n) {
+        name = n;
+    }
+
+    void setEmployeeNumber(int num) {
+        employeeNumber = num;
+    }
+
+    void setHireDate(const std::string& date) {
+        hireDate = date;
+    }
+};
+
+class ProductionWorker : public Employee {
+private:
+    int shift;        // 1 for day shift, 2 for night shift
+    double hourlyRate;
+
+public:
+    // Constructors
+    ProductionWorker() : shift(0), hourlyRate(0.0) {}
+    ProductionWorker(const std::string& n, int num, const std::string& date, int s, double rate)
+        : Employee(n, num, date), shift(s), hourlyRate(rate) {}
+
+    // Accessor functions for ProductionWorker
+    int getShift() const {
+        return shift;
+    }
+
+    std::string getShiftName() const {
+        return shift == 1 ? "Day Shift" : (shift == 2 ? "Night Shift" : "Invalid Shift");
+    }
+
+    double getHourlyRate() const {
+        return hourlyRate;
+    }
+
+    // Mutator functions for ProductionWorker
+    void setShift(int s) {
+        shift = s;
+    }
+
+    void setHourlyRate(double rate) {
+        hourlyRate = rate;
+    }
+};
+
+int main() {
+    std::list<Employee*> employees;
+
+    int numEmployees;
+    std::cout << "Enter the number of employees: ";
+    std::cin >> numEmployees;
+
+    for (int i = 0; i < numEmployees; ++i) {
+        std::string empType;
+        std::cout << "Enter employee type (Employee or Production Worker): ";
+        std::cin >> empType;
+
+        if (empType == "Employee") {
+            std::string name, hireDate;
+            int employeeNumber;
+
+            std::cout << "Enter employee name: ";
+            std::cin >> name;
+            std::cout << "Enter employee number: ";
+            std::cin >> employeeNumber;
+            std::cout << "Enter hire date: ";
+            std::cin >> hireDate;
+
+            employees.push_back(new Employee(name, employeeNumber, hireDate));
+        } else if (empType == "Production Worker") {
+            std::string name, hireDate;
+            int employeeNumber, shift;
+            double hourlyRate;
+
+            std::cout << "Enter employee name: ";
+            std::cin >> name;
+            std::cout << "Enter employee number: ";
+            std::cin >> employeeNumber;
+            std::cout << "Enter hire date: ";
+            std::cin >> hireDate;
+            std::cout << "Enter shift (1 for day shift, 2 for night shift): ";
+            std::cin >> shift;
+            std::cout << "Enter hourly rate: $";
+            std::cin >> hourlyRate;
+
+            employees.push_back(new ProductionWorker(name, employeeNumber, hireDate, shift, hourlyRate));
+        } else {
+            std::cout << "Invalid employee type. Try again." << std::endl;
+            --i;  // Decrement the counter to re-enter the information
+        }
+    }
+
+    // Display information about the employees in the list
+    for (const auto& emp : employees) {
+        std::cout << "Employee Type: " << (dynamic_cast<ProductionWorker*>(emp) ? "Production Worker" : "Employee") << std::endl;
+        std::cout << "Employee Details:" << std::endl;
+        std::cout << "Name: " << emp->getName() << std::endl;
+        std::cout << "Employee Number: " << emp->getEmployeeNumber() << std::endl;
+        std::cout << "Hire Date: " << emp->getHireDate() << std::endl;
+
+        if (auto prodWorker = dynamic_cast<ProductionWorker*>(emp)) {
+            std::cout << "Shift: " << prodWorker->getShiftName() << std::endl;
+            std::cout << "Hourly Rate: $" << prodWorker->getHourlyRate() << std::endl;
+        }
+
+        std::cout << std::endl;
+    }
+
+    // Clean up allocated memory
+    for (auto emp : employees) {
+        delete emp;
+    }
+
+    return 0;
+}
